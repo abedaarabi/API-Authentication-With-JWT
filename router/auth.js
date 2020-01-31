@@ -2,13 +2,20 @@ const express = require("express");
 const router = express.Router();
 const User = require("../model/User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const result = dotenv.config();
+
+if (result.error) {
+  throw result.error;
+}
+
 const { registerValidation, loginValidation } = require("../validation");
 
 //router
 router.post("/register", async (req, res) => {
   // LET'S VALIDATE THE DATA BEFORE WE MAKE USER
   const { error } = registerValidation(req.body);
-  // const error = registerValidation(req.body).error;
 
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -19,9 +26,6 @@ router.post("/register", async (req, res) => {
   if (emailExist) {
     return res.status(400).send("EMAIL ALRADY EXIST!");
   }
-  // if (userExist) {
-  //   return res.status(400).send("USER ALRADY EXIST!");
-  // }
 
   // HACH PASSWORD
   const salt = await bcrypt.genSalt(10);
@@ -34,7 +38,7 @@ router.post("/register", async (req, res) => {
   });
   try {
     const savedUser = await user.save();
-    res.send({ ID: user._id }); //ADD OBJ FROM LINE 30
+    res.send({ ID: user._id }, console.log("User saved")); //ADD OBJ FROM LINE 30
   } catch (err) {
     res.status(400).send(err);
   }
@@ -51,12 +55,12 @@ router.post("/login", async (req, res) => {
   if (!userExist) {
     return res.status(400).send("EMAIL OR PASSWORD NOT EXIST!");
   }
-  const valiPass = await bcrypt.compare(req.body.password, userExist.password);
+  const validPass = await bcrypt.compare(req.body.password, userExist.password);
 
-  if (!valiPass) {
-    return res.status(400).send("WRONG PASSWORD");
-  }
-  res.send("SECCESS");
+  if (!validPass) return res.status(400).send("WRONG PASSWORD");
+  //Create and assign token
+  const token = jwt.sign({ ID: userExist._id }, process.env.TOKEN_SECRET_DB);
+  res.header("auth-token", token).send(token);
 });
 
 module.exports = router;
