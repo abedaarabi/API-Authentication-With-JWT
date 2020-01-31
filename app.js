@@ -6,6 +6,7 @@ const routerAuth = require("./router/auth");
 // Connect to DB
 mongoose.connect(
   "mongodb+srv://abed:abed123@cluster0-hbkdn.mongodb.net/test?retryWrites=true&w=majority",
+
   { useUnifiedTopology: true, useNewUrlParser: true },
   () => {
     console.log("Connected to DB ...");
@@ -14,7 +15,7 @@ mongoose.connect(
 //MiddleWare
 app.use(express.json());
 
-app.use("/api/user", routerAuth);
+app.use("/", routerAuth);
 
 app.get("/", (req, res) => {
   res.send("hello world");
