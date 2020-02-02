@@ -6,31 +6,41 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const result = dotenv.config();
 
+const ERROR_CODES = {
+  EMAIL_ALREADY_EXIST: 1
+};
+
 if (result.error) {
   throw result.error;
 }
+
+// User.deleteMany().then((...args) => console.log(...args));
 
 const { registerValidation, loginValidation } = require("../validation");
 
 //router
 router.post("/register", async (req, res) => {
   // LET'S VALIDATE THE DATA BEFORE WE MAKE USER
+
   const { error } = registerValidation(req.body);
 
   if (error) return res.status(400).send(error.details[0].message);
 
   //CHECK IN USER ALRADY IN DATABASE
+  console.log("before");
   const emailExist = await User.findOne({ email: req.body.email });
+  console.log("after");
   // const userExist = await User.findOne({ name: req.body.name });
 
   if (emailExist) {
-    return res.status(400).send("EMAIL ALRADY EXIST!");
+    return res.status(400).send({ error: ERROR_CODES.EMAIL_ALREADY_EXIST });
   }
 
   // HACH PASSWORD
   const salt = await bcrypt.genSalt(10);
   const hachedPassword = await bcrypt.hash(req.body.password, salt);
   //CREATE NEW USER!
+  console.log("creating a new user");
   const user = new User({
     name: req.body.name,
     email: req.body.email,
@@ -38,7 +48,8 @@ router.post("/register", async (req, res) => {
   });
   try {
     const savedUser = await user.save();
-    res.send({ ID: user._id }, console.log("User saved")); //ADD OBJ FROM LINE 30
+    console.log("User saved", savedUser);
+    res.status(201).send({ ID: user._id, email: user.email, name: user.name }); //ADD OBJ FROM LINE 30
   } catch (err) {
     res.status(400).send(err);
   }
