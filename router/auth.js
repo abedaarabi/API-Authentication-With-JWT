@@ -43,7 +43,8 @@ router.post("/register", async (req, res) => {
   try {
     const savedUser = await user.save();
     console.log("User saved", savedUser);
-    res.status(201).send({ user: user._id }); //ADD OBJ FROM LINE 30
+    res.status(201).send({ user: user._id });
+    //ADD OBJ FROM LINE 30
   } catch (err) {
     res.status(400).send(err);
   }
@@ -68,8 +69,8 @@ router.post("/login", async (req, res) => {
   const indexFilePath = path.resolve(__dirname, "../client/profile.html");
   res.header("auth-token", token).sendFile(indexFilePath);
 
-  return;
-  res.header("auth-token", token).send(token);
+  // return;
+  // res.header("auth-token", token).send(token);
 });
 router.post("/profile", async (req, res) => {
   // LET'S VALIDATE THE DATA BEFORE WE MAKE USER
