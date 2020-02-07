@@ -43,24 +43,31 @@ if (registerForm) {
 //===========================================
 
 retriveBTN.addEventListener("click", async e => {
-  const response = await fetch("/projects", {
-    method: "get",
-    body: JSON.stringify(),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-  const data = await response.json();
-  console.log(data);
-  const html = data.data
-    .map(user => {
-      return `
-    <div class ="userForge">
-    <p> project name: ${user.attributes.name} </p>
-    </div>`;
-    })
-    .join();
+  try {
+    const response = await fetch("/projects", {
+      method: "get",
+      body: JSON.stringify(),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const data = await response.json();
+    console.log(data);
 
-  document.querySelector("#app").insertAdjacentHTML("afterbegin", html);
-  retriveBTN.remove();
+    const html = data.data
+
+      .map(project => {
+        return `
+      <div class ="userForge">
+      <p> project name: ${project.attributes.name} </p>
+      <p> project id: ${project.id} </p>
+      </div>`;
+      })
+      .join();
+    console.log(html);
+    document.querySelector("#app").insertAdjacentHTML("afterbegin", html);
+    retriveBTN.remove();
+  } catch (error) {
+    console.log(error);
+  }
 });

@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon -e js,jade app.js"
+    "start": "nodemon -e js app.js",
+    "ext": "js,html"
   },
   "author": "",
   "license": "ISC",
